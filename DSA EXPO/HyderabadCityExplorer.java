@@ -1,9 +1,7 @@
 import java.util.*;
 
-// Main Class: Hyderabad City Explorer
 public class HyderabadCityExplorer {
 
-    // PO2/CO2: Place Object with Rating and Category
     static class Place {
         String name;
         double rating;
@@ -17,26 +15,11 @@ public class HyderabadCityExplorer {
 
         @Override
         public String toString() {
-            return String.format("[%s] %-15s | Rating: %.1f", category, name, rating);
+            return String.format("[%s] %-20s | Rating: %.1f", category, name, rating);
         }
     }
 
-    // --- CO2: ADT Implementation (Doubly Linked List for Navigation) ---
-    static class NavigationNode {
-        Place place;
-        NavigationNode next, prev;
-        NavigationNode(Place p) { this.place = p; }
-    }
-
-    private NavigationNode head, tail;
-    public void addPlaceToTour(Place p) {
-        NavigationNode newNode = new NavigationNode(p);
-        if (head == null) head = tail = newNode;
-        else { tail.next = newNode; newNode.prev = tail; tail = newNode; }
-    }
-
-    // --- CO1: Classical Sorting (Merge Sort - Recursive) ---
-    // Time Complexity: O(n log n), Space Complexity: O(n)
+    // --- CO1: Classical Sorting (Merge Sort) ---
     public static void mergeSortByRating(Place[] arr, int l, int r) {
         if (l < r) {
             int m = l + (r - l) / 2;
@@ -54,56 +37,72 @@ public class HyderabadCityExplorer {
 
         int i = 0, j = 0, k = l;
         while (i < n1 && j < n2) {
-            if (L[i].rating >= R[j].rating) arr[k++] = L[i++]; // Descending
+            if (L[i].rating >= R[j].rating) arr[k++] = L[i++]; 
             else arr[k++] = R[j++];
         }
         while (i < n1) arr[k++] = L[i++];
         while (j < n2) arr[k++] = R[j++];
     }
 
-    // --- MAIN EXECUTION ---
-    public static void main(String[] args) {
-        System.out.println("=== HYDERABAD CITY EXPLORER (DSA PROJECT) ===\n");
+    // --- New Method: Filter and Display ---
+    public static void displayByCategory(Place[] arr, String category) {
+        System.out.println("\n--- Popular " + category + " in Hyderabad ---");
+        boolean found = false;
+        for (Place p : arr) {
+            if (p.category.equalsIgnoreCase(category)) {
+                System.out.println(p);
+                found = true;
+            }
+        }
+        if (!found) System.out.println("No entries found for this category.");
+    }
 
-        // 1. Data Initialization
+    public static void main(String[] args) {
+        // 1. Expanded Data Initialization
         Place[] locations = {
-            new Place("Charminar", 4.7, "Heritage"),
-            new Place("Golconda Fort", 4.8, "Heritage"),
-            new Place("Biryani King", 4.9, "Food"),
-            new Place("Salar Jung", 4.6, "Museum"),
-            new Place("Hussain Sagar", 4.4, "Park")
+            new Place("Charminar", 4.7, "Place"),
+            new Place("Golconda Fort", 4.8, "Place"),
+            new Place("Paradise Biryani", 4.9, "Food"),
+            new Place("Shah Ghouse", 4.7, "Food"),
+            new Place("Roastery Coffee", 4.8, "Cafe"),
+            new Place("Autumn Leaf Cafe", 4.5, "Cafe"),
+            new Place("Salar Jung Museum", 4.6, "Place"),
+            new Place("Ram Ki Bandi", 4.4, "Food"),
+            new Place("Concu", 4.7, "Cafe"),
+            new Place("Hussain Sagar", 4.4, "Place")
         };
 
-        // 2. CO1: Ranking Locations (Sorting)
+        // 2. Sort once at the start (O(n log n))
         mergeSortByRating(locations, 0, locations.length - 1);
-        System.out.println(">> Sorted Attractions by Rating (Merge Sort):");
-        for (Place p : locations) System.out.println(p);
 
-        // 3. CO3: Real-world Workflows (Queues & Priority Queues)
-        // Ticket Booking (FIFO)
-        Queue<String> ticketQueue = new LinkedList<>();
-        ticketQueue.add("Tourist_01");
-        ticketQueue.add("Tourist_02");
-        System.out.println("\n>> Ticket Queue Head: " + ticketQueue.peek() + " is next for Charminar.");
+        Scanner sc = new Scanner(System.in);
+        int choice;
 
-        // VIP/Emergency Alerts (Heap/Priority Queue)
-        PriorityQueue<String> emergencyAlerts = new PriorityQueue<>(Collections.reverseOrder());
-        emergencyAlerts.add("Traffic Jam at Banjara Hills");
-        emergencyAlerts.add("URGENT: VIP Movement at Assembly");
-        System.out.println(">> Processing Priority Alert: " + emergencyAlerts.poll());
-
-        // 4. CO4: Fast Lookups (Hashing)
-        HashMap<String, String> quickFacts = new HashMap<>();
-        quickFacts.put("Charminar", "Built in 1591 by Muhammad Quli Qutb Shah.");
-        quickFacts.put("Golconda", "Famous for its acoustic effects.");
+        System.out.println("=== WELCOME TO HYDERABAD CITY EXPLORER ===");
         
-        System.out.println("\n>> Instant Search (Hashing) for 'Charminar':");
-        System.out.println("Fact: " + quickFacts.get("Charminar"));
+        do {
+            System.out.println("\nSelect an option to explore:");
+            System.out.println("1. View Popular Places (Heritage/Parks)");
+            System.out.println("2. View Popular Foods (Biryani/Street Food)");
+            System.out.println("3. View Popular Cafes");
+            System.out.println("4. View All (Sorted by Rating)");
+            System.out.println("5. Exit");
+            System.out.print("Enter Choice: ");
+            choice = sc.nextInt();
 
-        // 5. CO3: Navigation History (Stack - LIFO)
-        Stack<String> visitHistory = new Stack<>();
-        visitHistory.push("Charminar");
-        visitHistory.push("Biryani King");
-        System.out.println("\n>> History Stack: User just left " + visitHistory.pop() + " to go back.");
+            switch (choice) {
+                case 1: displayByCategory(locations, "Place"); break;
+                case 2: displayByCategory(locations, "Food"); break;
+                case 3: displayByCategory(locations, "Cafe"); break;
+                case 4:
+                    System.out.println("\n--- All Hyderabad Attractions (Top Rated) ---");
+                    for (Place p : locations) System.out.println(p);
+                    break;
+                case 5: System.out.println("Happy Exploring! Goodbye."); break;
+                default: System.out.println("Invalid choice. Try again.");
+            }
+        } while (choice != 5);
+        
+        sc.close();
     }
 }
